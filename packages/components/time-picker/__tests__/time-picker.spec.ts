@@ -217,16 +217,19 @@ describe('TimePicker', () => {
     expect(secondsDom).toBeUndefined()
   })
 
-  it('event change, focus, blur', async () => {
+  it('event change, focus, blur, clear', async () => {
     const changeHandler = jest.fn()
     const focusHandler = jest.fn()
     const blurHandler = jest.fn()
+    const clearHandler = jest.fn()
+
     const wrapper = _mount(
       `<el-time-picker
         v-model="value"
         @change="onChange"
         @focus="onFocus"
         @blur="onBlur"
+        @clear="onClear"
       />`,
       () => ({ value: new Date(2016, 9, 10, 18, 40) }),
       {
@@ -240,6 +243,9 @@ describe('TimePicker', () => {
           onBlur(e) {
             return blurHandler(e)
           },
+          onClear(){
+            return clearHandler()
+          }
         },
       }
     )
@@ -259,6 +265,72 @@ describe('TimePicker', () => {
     await nextTick() // onchange is triggered by props.modelValue update
     expect(changeHandler).toHaveBeenCalledTimes(1)
     expect(blurHandler).toHaveBeenCalledTimes(1)
+    const closeIcon = wrapper.find('.el-range__close-icon')
+    closeIcon.trigger('click')
+    await nextTick()
+    expect(clearHandler).toHaveBeenCalledTimes(0)
+  })
+
+
+  test('range event:clear', async () => {
+    const clearHandler = jest.fn()
+    const changeHandler = jest.fn()
+    const wrapper = _mount(
+      `<el-time-picker
+        v-model="value"
+        :is-range="true"
+        @clear="onClear"
+        @change="onChange"
+      />`,
+      () => ({ value: [new Date(2016, 9, 10, 18, 40), new Date(2016, 9, 10, 19, 40)] }),
+      {
+        methods: {
+          onClear(){
+            return clearHandler()
+          },
+          onChange(){
+            return changeHandler();
+          }
+        },
+      }
+    )
+
+    const inputs = wrapper.findAll('input')
+    inputs[0].trigger('focus')
+    await nextTick()
+    wrapper.find('.el-range__close-icon').trigger('click')
+    await nextTick()
+    await nextTick()
+    // console.log(inputs[0].element.value)
+    // expect(inputs[0].element.value).toBe('')
+    // expect(inputs[1].element.value).toBe('')
+    expect(changeHandler).toHaveBeenCalledTimes(1)
+    expect(clearHandler).toHaveBeenCalledTimes(1)
+  })
+  it('event change, focus, blur, clear', async () => {
+    const clearHandler = jest.fn()
+    
+    const wrapper = _mount(
+      `<el-time-picker
+        v-model="value"
+        @clear="onClear"
+      />`,
+      () => ({ value: '' }),
+      {
+        methods: {
+          onClear(){
+            return clearHandler()
+          }
+        },
+      }
+    )
+    const input = wrapper.find('input')
+    input.trigger('mouseenter');
+    await nextTick()
+    const closeIcon = wrapper.find('.el-range__close-icon')
+    closeIcon.trigger('click')
+    await nextTick()
+    expect(clearHandler).toHaveBeenCalledTimes(1)
   })
 
   it('selectableRange ', async () => {

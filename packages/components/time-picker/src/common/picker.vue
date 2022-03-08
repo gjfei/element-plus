@@ -42,11 +42,7 @@
         @click.stop
       >
         <template #prefix>
-          <el-icon
-            v-if="triggerIcon"
-            class="el-input__icon"
-            @click="handleFocus"
-          >
+          <el-icon v-if="triggerIcon" class="el-input__icon" @click="handleFocus">
             <component :is="triggerIcon"></component>
           </el-icon>
         </template>
@@ -77,11 +73,7 @@
         @mouseleave="onMouseLeave"
         @keydown="handleKeydown"
       >
-        <el-icon
-          v-if="triggerIcon"
-          class="el-input__icon el-range__icon"
-          @click="handleFocus"
-        >
+        <el-icon v-if="triggerIcon" class="el-input__icon el-range__icon" @click="handleFocus">
           <component :is="triggerIcon"></component>
         </el-icon>
         <input
@@ -247,6 +239,7 @@ export default defineComponent({
     'change',
     'focus',
     'blur',
+    'clear',
     'calendar-change',
     'panel-change',
     'visible-change',
@@ -449,6 +442,7 @@ export default defineComponent({
         event.stopPropagation()
         emitInput(null)
         emitChange(null, true)
+        ctx.emit('clear')
         showClose.value = false
         pickerVisible.value = false
         pickerOptions.value.handleClear && pickerOptions.value.handleClear()
